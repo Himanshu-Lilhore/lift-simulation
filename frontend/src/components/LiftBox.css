@@ -1,0 +1,30 @@
+
+.liftbox::before,
+.liftbox::after{
+    position: absolute;
+    content: '';
+    width: 50%;
+    height: 100%;
+    top: 0%;
+    background-color: gray;
+    transition: all 2.5s ease-out;
+    z-index: 1;
+}
+
+.liftbox::before {
+    left: -50%;
+    border-right: 0.1rem solid black;
+}
+
+.liftbox::after {
+    right: -50%;
+    border-left: 0.1rem solid black;
+}
+
+
+.liftbox.active::before {
+    left: 0%;
+}
+.liftbox.active::after {
+    right: 0%;
+}
