@@ -1,9 +1,10 @@
 import upButton from '../assets/up-button.png';
 
-export default function Floor({ level, setState, findClosest }) {
+export default function Floor({ level, setState, findClosest, setTrigger }) {
 
     function handleUp() {
-        console.log(`Handing UP for level ${level}`)
+        setTrigger(new Date())
+        console.log(`Handling UP for level ${level}`)
         const closest = findClosest(level, 1);
         console.log("closest : ", closest)
         if (closest !== -1) {
@@ -16,7 +17,6 @@ export default function Floor({ level, setState, findClosest }) {
                         
                         return {
                             ...lift,
-                            direction: 1,
                             stoppage: updatedstoppage
                         };
                     }
@@ -27,7 +27,8 @@ export default function Floor({ level, setState, findClosest }) {
     }
     
     function handleDown() {
-        console.log(`Handing DOWN for level ${level}`)
+        setTrigger(new Date())
+        console.log(`Handling DOWN for level ${level}`)
         const closest = findClosest(level, -1);
         console.log("closest : ", closest)
         if (closest !== 1) {
@@ -40,7 +41,6 @@ export default function Floor({ level, setState, findClosest }) {
     
                         return {
                             ...lift,
-                            direction: -1,
                             stoppage: updatedstoppage
                         };
                     }
