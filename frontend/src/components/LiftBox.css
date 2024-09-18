@@ -9,6 +9,7 @@
     background-color: gray;
     transition: all 2.5s ease-out;
     z-index: 1;
+    opacity: 70%;
 }
 
 .liftbox::before {

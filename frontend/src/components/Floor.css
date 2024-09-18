@@ -1,0 +1,14 @@
+body {
+    --glow-color: rgba(255, 0, 0, 0.488);
+}
+
+.neon-glow {
+    filter: drop-shadow(0 0 1px var(--glow-color)) 
+    drop-shadow(0 0 2px var(--glow-color)) 
+    drop-shadow(0 0 3px var(--glow-color)) 
+    drop-shadow(0 0 4px var(--glow-color));
+}
+
+.liftBtn {
+    transition: all 0.5s ease-in-out;
+}
