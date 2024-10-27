@@ -15,7 +15,8 @@ function App() {
 		{ targetFloor: 0, currentFloor: 0, direction: 0, stoppage: new Set(), fulfillment: true }
 	]);
 	const [inMotion, setInMotion] = useState([false, false]);
-	let myTimer
+	const [isOpen, setIsOpen] = useState([false, false])
+	const myTimer = useRef(null);
 
 	useEffect(() => {
 		setState(prev => {
@@ -32,6 +33,10 @@ function App() {
 		setInMotion(prev => {
 			return (Array(lifts).fill(false))
 		})
+
+		setIsOpen(prev => {
+			return (Array(lifts).fill(false))
+		})
 	}, [lifts, floors])
 
 
@@ -44,54 +49,58 @@ function App() {
 			let currInMotion = [...inMotion];
 
 			for (let lift = 0; lift < lifts; lift++) {
-				let currLiftState = currState[lift]
-				let currLiftInMotion = currInMotion[lift]
-				if (!currLiftInMotion) {
-					console.log(`${lift + 1} is motionless`)
-					if (currLiftState.fulfillment) {
-						console.log(`    ${lift + 1} is fulfilled`)
-						if (currLiftState.stoppage.size) {
-							console.log(`        ${lift + 1} has stoppage(s)`)
-							currLiftState.fulfillment = false;
-							const toFloor = Array.from(currLiftState.stoppage)[0]
-							currLiftState.targetFloor = toFloor
-							if (currLiftState.direction === 0) currLiftState.direction = Math.sign(toFloor - currLiftState.currentFloor)
-							console.log(`            Moving lift ${lift + 1} to floor ${toFloor}`)
-							let updatedstoppage = new Set(currLiftState.stoppage);
-							updatedstoppage.delete(toFloor);
-							currLiftState.stoppage = updatedstoppage;
-							currLiftInMotion = true
+				if (!isOpen[lift]) {
+
+					
+					let currLiftState = currState[lift]
+					let currLiftInMotion = currInMotion[lift]
+					if (!currLiftInMotion) {
+						console.log(`${lift + 1} is motionless`)
+						if (currLiftState.fulfillment) {
+							console.log(`    ${lift + 1} is fulfilled`)
+							if (currLiftState.stoppage.size) {
+								console.log(`        ${lift + 1} has stoppage(s)`)
+								currLiftState.fulfillment = false;
+								const toFloor = Array.from(currLiftState.stoppage).sort((a, b) => a - b)[0]
+								currLiftState.targetFloor = toFloor
+								if (currLiftState.direction === 0) currLiftState.direction = Math.sign(toFloor - currLiftState.currentFloor)
+								console.log(`            Moving lift ${lift + 1} to floor ${toFloor}`)
+								let updatedstoppage = new Set(currLiftState.stoppage);
+								updatedstoppage.delete(toFloor);
+								currLiftState.stoppage = updatedstoppage;
+								currLiftInMotion = true
+							}
+							else {
+								if (currLiftState.direction) {
+									currLiftState.direction = 0
+									// setTaskCount(prev => prev - 1)
+									// console.log(`Decreased task count`)
+								}
+							}
+						}
+						currState[lift] = currLiftState;
+						currInMotion[lift] = currLiftInMotion;
+					}
+					else {
+						console.log(`${lift + 1} is moving`)
+						console.log(`${animationEndsAt[lift]} < ${(new Date())}`)
+						if (animationEndsAt[lift] ? animationEndsAt[lift] < (new Date()) : currLiftState.targetFloor === currLiftState.currentFloor) {
+							setAnimationEndsAt(prev => {
+								const newEndsAt = [...prev];
+								newEndsAt[lift] = null;
+								return newEndsAt;
+							})
+							console.log(`    ${lift + 1}'s animation ended`)
+							currLiftInMotion = false
+							currLiftState.currentFloor = currLiftState.targetFloor
 						}
 						else {
-							if(currLiftState.direction) {
-								currLiftState.direction = 0
-								// setTaskCount(prev => prev - 1)
-								// console.log(`Decreased task count`)
-							}
+							console.log(`    ${lift + 1} animation running, since ${animationEndsAt[lift]} > ${new Date()}`)
 						}
 					}
 					currState[lift] = currLiftState;
 					currInMotion[lift] = currLiftInMotion;
 				}
-				else {
-					console.log(`${lift + 1} is moving`)
-					console.log(`${animationEndsAt[lift]} < ${(new Date())}`)
-					if (animationEndsAt[lift] ? animationEndsAt[lift] < (new Date()) : currLiftState.targetFloor === currLiftState.currentFloor) {
-						setAnimationEndsAt(prev => {
-							const newEndsAt = [...prev];
-							newEndsAt[lift] = null;
-							return newEndsAt;
-						})
-						console.log(`    ${lift + 1}'s animation ended`)
-						currLiftInMotion = false
-						currLiftState.currentFloor = currLiftState.targetFloor
-					}
-					else {
-						console.log(`    ${lift + 1} animation running, since ${animationEndsAt[lift]} > ${new Date()}`)
-					}
-				}
-				currState[lift] = currLiftState;
-				currInMotion[lift] = currLiftInMotion;
 			}
 			setState(currState)
 			setInMotion(currInMotion)
@@ -139,12 +148,13 @@ function App() {
 	}, [taskCount])
 
 	useEffect(() => {
-		if(!myTimer) {
-			myTimer = setInterval(() => {
-				if (taskCount > 0)
-					setTrigger(new Date())
-				else clearInterval(myTimer)
-			}, 200)
+		if (taskCount > 0 && !myTimer.current) { // Check if taskCount is positive and no timer is running
+			myTimer.current = setInterval(() => {
+				setTrigger(new Date());
+			}, 800);
+		} else if (taskCount === 0 && myTimer.current) { // Clear the timer if taskCount is 0
+			clearInterval(myTimer.current);
+			myTimer.current = null; // Reset the ref
 		}
 	}, [trigger])
 
@@ -188,6 +198,8 @@ function App() {
 										setState={setState}
 										floors={floors}
 										inMotion={inMotion}
+										isOpen={isOpen}
+										setIsOpen={setIsOpen}
 										setInMotion={setInMotion}
 										taskCount={taskCount}
 										setTaskCount={setTaskCount}

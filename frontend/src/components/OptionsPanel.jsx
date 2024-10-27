@@ -8,7 +8,13 @@ export default function OptionsPanel({ lifts, floors, setLifts, setFloors }) {
                 <input type='number'
                     className="text-right w-16"
                     value={floors}
-                    onChange={(e) => setFloors((prev) => parseInt(e.target.value))}
+                    onChange={(e) => setFloors((prev) => {
+                        let val = parseInt(e.target.value)
+                        if(val < 1 || val > 99)
+                            return prev
+                        else
+                            return val
+                    })}
                     required />
             </div>
             <div className="flex whitespace-nowrap justify-between w-full">
@@ -16,7 +22,13 @@ export default function OptionsPanel({ lifts, floors, setLifts, setFloors }) {
                 <input type='number'
                     className="text-right w-16"
                     value={lifts}
-                    onChange={(e) => setLifts((prev) => parseInt(e.target.value))}
+                    onChange={(e) => setLifts((prev) => {
+                        let val = parseInt(e.target.value)
+                        if(val < 1 || val > 99)
+                            return prev
+                        else
+                            return val
+                    })}
                     required />
             </div>
 
